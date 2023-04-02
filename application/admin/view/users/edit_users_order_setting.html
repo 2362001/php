@@ -1,0 +1,125 @@
+<form class="layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body">
+        <div class="layui-form-item">
+            <label class="layui-form-label ">用户名称</label>
+            <div class="layui-input-block">
+                <input name="user_name" placeholder="请输入用户名称" value="{$info.username}" class="layui-input" readonly>
+                {:token()}
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">今日抢单数</label>
+            <div class="layui-input-block">
+                <input name="today_order" type="number" min="0" value="{$today_order}" readonly class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">当前设置</label>
+            <div class="layui-input-block">
+                <input name="today_order" type="input" value="{$setorder}" readonly class="layui-input">
+            </div>
+        </div>
+
+        <div class="layui-form-item layui-inline">
+            <label class="layui-form-label">连单设置</label>
+            <div class="layui-input-inline">
+                <input name="set_order" type="number" min="0" value="" required class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item layui-inline">
+            <label class="layui-form-label">连单商品</label>
+            <div class="layui-input-inline">
+                <input name="set_goods" id="set_goods" type="input" value="" required class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">价格区间</label>
+            <div class="layui-input-inline" style="width: 100px;">
+                <input type="number" id="price_min" name="price_min" min="0" value="" placeholder="￥" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid">-</div>
+            <div class="layui-input-inline" style="width: 100px;">
+                <input type="number" id="price_max" name="price_max" min="0" value="" placeholder="￥" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <button class="layui-btn layui-btn-primary" type='button' onclick="search()">搜索</button>
+            </div>
+        </div>
+        <div id='table' class="layui-form-item" style="margin-left:35px; display: none;overflow-x: auto; overflow-y: auto; height: 250px;">
+        <table class="layui-table" lay-filter="tab" lay-skin="line" lay-size="sm">
+            <thead>
+            <tr>
+                <th class='text-center' style="width: 10%;">商品编号</th>
+                <th class='text-center' style="width: 30%;">商品名称</th>
+                <th class='text-center' style="width: 10%;">商品价格</th>
+                <th class='text-center' style="width: 10%;">设置数量</th>
+                <th class='text-center' style="width: 10%;">设置佣金</th>
+                <th class='text-center' style="width: 10%;">是否选中</th>
+            </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+        </div>
+
+  
+    </div>
+    <input name="id" type="hidden" value="{$info.id}">
+
+    <div class="hr-line-dashed"></div>
+
+    <div class="layui-form-item text-center">
+        <button class="layui-btn" type='submit'>提交</button>
+        <button class="layui-btn layui-btn-danger" type='button' data-close>取消</button>
+    </div>
+
+    <script>
+        var test = "{$info.kouchu_balance_uid|default='0'}";
+        $("#selectList").find("option[value="+test+"]").prop("selected",true);
+
+        window.form.render();
+    </script>
+<script>
+    function search() {
+        //$('#table').show();
+        var price_min = $('#price_min').val();
+        var price_max = $('#price_max').val();
+        $.ajax({
+            url:'{:url("admin/users/get_goods")}',
+            dataType:"json",
+            type:"POST",
+            data:{min:price_min,max:price_max},
+            success:function(data){
+                if (data.code!=200){
+                    alert(data.msg);
+                }else{
+                    $('#table').show();
+                    for (var i=0; i<data.data.length; i++){
+                        $("#tbody").append(
+                            '<tr>'+
+                            '<td class="text-center">'+data.data[i]['id']+'</td>'+
+                            '<td class="text-center">'+data.data[i]['goods_name']+'</td>'+
+                            '<td class="text-center">'+data.data[i]['goods_price']+'</td>'+
+                            '<td class="text-center">'+
+                            '<input type="number" id="num_'+data.data[i]['id']+'" name="num_'+data.data[i]['id']+'" placeholder="请输入数量" value="1" class="layui-input">'+
+                            '</td>'+
+                            '<td class="text-center">'+
+                            '<input type="text" id="com_'+data.data[i]['id']+'" name="com_'+data.data[i]['id']+'" placeholder="佣金（%）" value="0" class="layui-input">'+
+                            '</td>'+
+                            '<td class="text-center"><input type="radio" name="select" value="'+data.data[i]['id']+'" onclick="selectgoods(this)" class="layui-input"></td>'+
+                            '</tr>'
+                        );
+                    }
+                }
+            }
+        });
+    }
+    function selectgoods(id){
+        var id = id.value;
+        var num = $("#num_"+id).val();
+        var com = $("#com_"+id).val();
+        $("#set_goods").val(id+'x'+num+'x'+com);
+    }
+</script>
+</form>

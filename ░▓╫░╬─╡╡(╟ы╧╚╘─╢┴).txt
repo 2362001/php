@@ -1,0 +1,30 @@
+﻿1.上传解压网站文件
+
+2.创建并导入数据库 v10.sql
+
+3.修改/config/database.php 中的数据库连接信息
+
+4.网站运行目录 /public
+
+5.配置伪静态规则（THINKPHP）
+
+ <IfModule mod_rewrite.c>
+  Options +FollowSymlinks -Multiviews
+  RewriteEngine On
+
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.php [L,E=PATH_INFO:$1]
+</IfModule>
+
+
+后台：/admin/login.html  用户名：admin  密码：a123456
+
+注：切记在手机测试或PC浏览器模拟手机大小测试不然是显示PC端的首页
+
+版本v10.8
+新增派单可单独设置佣金
+连单管理可修改设置佣金
+抢单如果被设置佣金则按照设置佣金，否则按照原等级佣金。
+
+

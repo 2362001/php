@@ -1,0 +1,181 @@
+<?php if (!empty($order)){ ?>
+<form class="layui-card" action="{:request()->url()}" data-auto="true" method="post" autocomplete="off">
+    <div class="layui-card-body">
+        <div id='table' class="layui-form-item" style="overflow-x: auto; overflow-y: auto;">
+            <table class="layui-table" lay-filter="tab" lay-skin="line" lay-size="sm">
+                <thead>
+                <tr>
+                    <th class='text-center' style="width: 40%;">商品名称</th>
+                    <th class='text-center' style="width: 20%;">商品图片</th>
+                    <th class='text-center' style="width: 10%;">商品价格</th>
+                    <th class='text-center' style="width: 10%;">设置数量</th>
+                    <th class='text-center' style="width: 10%;">设置佣金</th>
+                    <th class='text-center' style="width: 10%;">设置连单</th>
+                    <!--<th class='text-center' style="width: 10%;">操作</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-center" id="goods_name_{$order['id']}">{$order['goods_name']}"</td>
+                    <td class="text-center">
+                        <img src="{$order['goods_pic']}" id="goods_pic_{$order['id']}" />
+                    </td>
+                    <td class="text-center" id="goods_price_{$order['id']}">{$order['goods_price']}</td>
+                    <td class="text-center" id="goods_num_{$order['id']}">{$order['goods_num']}</td>
+                    <td class="text-center" id="goods_com_{$order['id']}">{$order['goods_com']}</td>
+                    <td class="text-center">{$order['order_sort']}</td>
+                    <!--<td class="text-center">-->
+                        <!--<a data-dbclick class="layui-btn layui-btn-xs layui-btn-danger" id="but_id_{$order['id']}" title="{$order['id']}" onclick="editgoods(this)" >编辑商品</a>-->
+                    <!--</td>-->
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <input name="id" type="hidden" value="{$info.id}">
+    <div class="layui-card-body" id="hidden">
+        <div class="layui-form-item">
+            <label class="layui-form-label">价格区间:</label>
+            <div class="layui-input-inline" style="width: 200px;">
+                <input type="number" id="price_min" name="price_min" min="0" value="1" placeholder="￥" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid">-</div>
+            <div class="layui-input-inline" style="width: 200px;">
+                <input type="number" id="price_max" name="price_max" min="0" value="2" placeholder="￥" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-input-inline">
+                <button class="layui-btn layui-btn-primary" type='button' onclick="search()">搜索</button>
+                <button class="layui-btn layui-btn-primary" type='button' id="save">保存</button>
+            </div>
+            <!--<div class="layui-row" style="text-align: center">-->
+            <!--<div id="text" style="color: #1cb500;font-size: 15px;margin-top: 10px;"></div>-->
+            <div id="goods_id" style="display: none;">{$order['goods_id']}</div>
+            <div id="setid" style="display: none;">{$order['id']}</div>
+            <!--</div>-->
+        </div>
+        <div class="layui-form-item" style="overflow-x: auto; overflow-y: auto;height: 250px;">
+
+            <table class="layui-table" lay-filter="tab" lay-skin="line" lay-size="sm">
+                <thead>
+                <tr>
+                    <th class='text-center' style="width: 40%;">商品名称</th>
+                    <th class='text-center' style="width: 20%;">商品图片</th>
+                    <th class='text-center' style="width: 10%;">商品价格</th>
+                    <th class='text-center' style="width: 10%;">设置数量</th>
+                    <th class='text-center' style="width: 10%;">设置佣金</th>
+                    <th class='text-center' style="width: 10%;">是否选中</th>
+                </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+
+    </div>
+</form>
+<?php }else{ ?>
+<span style="font-size: 18px;margin: 300px;">未设置连单或连单未生效</span>
+<?php } ?>
+<script>
+    // function editgoods(data) {
+    //     var id=data.title;
+    //     var goods_name = $("#goods_name_"+id).val();
+    //     $("#hidden").show();
+    //     $("#text").text("正在编辑商品："+goods_name);
+    //     $("#editid").text(id);
+    // }
+    function search() {
+        //$('#table').show();
+        var price_min = $('#price_min').val();
+        var price_max = $('#price_max').val();
+        $.ajax({
+            url:'{:url("admin/users/get_goods")}',
+            dataType:"json",
+            type:"POST",
+            data:{min:price_min,max:price_max},
+            success:function(data){
+                if (data.code!=200){
+                    alert(data.msg);
+                }else{
+                    $('#table').show();
+                    for (var i=0; i<data.data.length; i++){
+                        $("#tbody").append(
+                            '<tr>'+
+                            '<td class="text-center" id="chose_name_'+data.data[i]['id']+'">'+data.data[i]['goods_name']+'</td>'+
+                            '<td class="text-center"><img id="chose_img_'+data.data[i]['id']+'" src="'+data.data[i]['goods_pic']+'"/></td>'+
+                            '<td class="text-center" id="chose_price_'+data.data[i]['id']+'">'+data.data[i]['goods_price']+'</td>'+
+                            '<td class="text-center">'+
+                            '<input type="number" id="chose_num_'+data.data[i]['id']+'" name="num_'+data.data[i]['id']+'" placeholder="请输入数量" value="1" class="layui-input">'+
+                            '</td>'+
+                            '<td class="text-center">'+
+                            '<input type="text" id="chose_com_'+data.data[i]['id']+'" name="com_'+data.data[i]['id']+'" placeholder="佣金（%）" value="0" class="layui-input">'+
+                            '</td>'+
+                            '<td class="text-center"><input type="radio" name="select" value="'+data.data[i]['id']+'" onclick="selectgoods(this)" class="layui-input"></td>'+
+                            '</tr>'
+                        );
+                    }
+                }
+            }
+        });
+    }
+    function selectgoods(id){
+        var id = id.value;
+        var name = $("#chose_name_"+id).html();
+        var price = $("#chose_price_"+id).html();
+        var num = $("#chose_num_"+id).val();
+        var com = $("#chose_com_"+id).val();
+        var img = $("#chose_img_"+id).attr("src");
+
+        var setid = $("#setid").html();
+        $("#goods_id").text(id);
+        $("#goods_name_"+setid).text(name);
+        $("#goods_price_"+setid).text(price);
+        $("#goods_num_"+setid).text(num);
+        $("#goods_com_"+setid).text(com);
+        $("#goods_pic_"+setid).attr("src",img);
+    }
+    $("#save").click(function(){
+        var setid = $("#setid").html();
+        var goods_id = $("#goods_id").html();
+        var goods_num = $("#goods_num_"+setid).html();
+        var goods_com = $("#goods_com_"+setid).html();
+        $.ajax({
+            url:'{:url("admin/users/edit_goods")}',
+            dataType:"json",
+            type:"POST",
+            data:{id:goods_id,num:goods_num,com:goods_com,setid:setid},
+            success:function(data){
+                layer.msg(data.msg);
+            }
+        });
+    })
+    // $("#save").click(function(){
+    //     var id = $('input[type=radio]:checked').val();
+    //     if (id.length<1){
+    //         alert("请选择商品！");return;
+    //     }
+    //     var num = $("#num_"+id).val();
+    //     var edit = $("#editid").html();
+    //     if (id==edit){
+    //         alert("请选择其他商品！");return;
+    //     }
+    //     var setid = $("#setid").html();
+    //     $.ajax({
+    //         url:'{:url("admin/users/edit_goods")}',
+    //         dataType:"json",
+    //         type:"POST",
+    //         data:{id:id,num:num,edit:edit,setid:setid},
+    //         success:function(data){
+    //             if (data.code!=200){
+    //                 alert(data.msg);
+    //             }else{
+    //                 $("#goods_name_"+edit).val(data.data.goods_name).attr("id","goods_name_"+id);
+    //                 $("#goods_pic_"+edit).attr("src",data.data.goods_pic).attr("id","goods_pic_"+id);
+    //                 $("#goods_price_"+edit).val(data.data.goods_price).attr("id","goods_price_"+id);
+    //                 $("#goods_num_"+edit).val(num).attr("id","goods_num_"+id);
+    //                 $("#but_id_"+edit).attr("title",id).attr("id","but_id_"+id);
+    //                 $("#hidden").hide();
+    //             }
+    //         }
+    //     });
+    // });
+</script>

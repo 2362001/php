@@ -1,0 +1,4 @@
+---------------------------------------------------------------
+
+[2023-04-01T16:54:30+08:00] 203.205.13.202 GET 103.29.3.172/admin
+[ error ] [1045]SQLSTATE[HY000] [1045] Access denied for user 'v10'@'localhost' (using password: YES)[/www/wwwroot/103.29.3.172/thinkphp/library/think/db/Connection.php:528]
